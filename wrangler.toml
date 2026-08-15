@@ -1,0 +1,7 @@
+name = "mailguyai-com-worker"
+main = "worker.js"
+compatibility_date = "2024-05-12"
+
+[[kv_namespaces]]
+binding = "MAILGUY_KV"
+id = "26f005b50abb467fad92883fae384fa9"
