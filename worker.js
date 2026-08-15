@@ -67,14 +67,26 @@ export default {
         text: text
       };
 
-      const resendRes = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(resendPayload)
-      });
+      let resendRes = null;
+      try {
+        resendRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(resendPayload)
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ 
+          error: 'Resend API Gateway Connection Failed', 
+          code: 'SMTP_GATEWAY_OFFLINE',
+          details: err.message 
+        }), {
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
 
       if (!resendRes.ok) {
         const errorText = await resendRes.text();
