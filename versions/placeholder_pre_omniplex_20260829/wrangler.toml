@@ -1,0 +1,19 @@
+name = "mailguyai-com-worker"
+main = "worker.js"
+compatibility_date = "2024-05-12"
+
+[[kv_namespaces]]
+binding = "MAILGUY_KV"
+id = "ccc7ada3f8bf4976b6b1cbe9f7b03747"
+
+# Sovereign SMTP — Cloudflare native email binding. Zero external API dependency.
+# Requires "Email Routing" to be enabled on the weylandai.com / mailguyai.com zone.
+# Sending domain must be verified in Cloudflare Email Routing settings.
+[[send_email]]
+name = "SEND_EMAIL"
+
+[vars]
+ENVIRONMENT = "production"
+FROM_DOMAIN = "mailguyai.com"
+DEFAULT_FROM = "noreply@mailguyai.com"
+DEFAULT_FROM_NAME = "MailguyAI"
