@@ -1,221 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAILGUYAI.COM | Sovereign Operations</title>
-    <style>
-        :root {
-            --bg-dark: #050505;
-            --accent-glow: rgba(0, 255, 204, 0.15);
-            --glass-bg: rgba(20, 20, 20, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.05);
-            --text-primary: #f0f0f0;
-            --text-muted: #888;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
-        }
-        /* WebGL Container Layer */
-        #canvas-container {
-            position: absolute;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 0;
-        }
-        /* Somatic UI Layer (Glassmorphism) */
-        .glass-panel {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            max-width: 800px;
-            padding: 40px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-            z-index: 10;
-            animation: emerge 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-        }
-        @keyframes emerge {
-            0% { opacity: 0; transform: translate(-50%, -45%) scale(0.95); filter: blur(10px); }
-            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); }
-        }
-        h1 {
-            font-size: 3rem;
-            letter-spacing: -0.05em;
-            margin: 0 0 10px 0;
-            background: linear-gradient(180deg, #fff 0%, #aaa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .metrics {
-            display: flex;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .metric-card {
-            flex: 1;
-            padding: 20px;
-            background: rgba(0,0,0,0.4);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.03);
-            transition: all 0.3s ease;
-        }
-        .metric-card:hover {
-            background: rgba(255,255,255,0.03);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px var(--accent-glow);
-        }
-        .metric-value { font-size: 2rem; font-weight: 600; color: #00ffcc; }
-        .metric-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 5px; }
-        
-        /* Micro-interactions */
-        .status-dot {
-            display: inline-block; width: 8px; height: 8px;
-            background: #00ffcc; border-radius: 50%;
-            margin-right: 10px;
-            box-shadow: 0 0 10px #00ffcc;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 0.5; box-shadow: 0 0 5px #00ffcc; }
-            50% { opacity: 1; box-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc; }
-            100% { opacity: 0.5; box-shadow: 0 0 5px #00ffcc; }
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- MASCOM_ANALYTICS_CORTEX -->
-    <script>
-        (function() {
-            try {
-                const payload = {
-                    node: "mailguyai.com",
-                    timestamp: new Date().toISOString(),
-                    vector: window.location.pathname,
-                    agent: navigator.userAgent
-                };
-                navigator.sendBeacon("http://127.0.0.1:8889/track", JSON.stringify(payload));
-            } catch(e) {}
-        })();
-    </script>
-    
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MailguyAI — Sovereign Email Gateway &amp; Rule-Based Triage</title>
+<meta name="description" content="MailguyAI: a sovereign outbound email gateway (no Resend/Postmark dependency) plus a real, transparent rule-based inbox triage demo.">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --panel: #121826;
+    --accent: #ffb020;
+    --text: #f5f1e8;
+    --muted: #9aa4b8;
+    --border: rgba(255,176,32,0.2);
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+  header { max-width: 900px; margin: 0 auto; padding: 48px 24px 24px; }
+  .tag { display:inline-block; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); border:1px solid var(--border); border-radius:999px; padding:4px 12px; margin-bottom:18px; }
+  h1 { font-size:2.3rem; margin:0 0 12px; letter-spacing:-0.02em; }
+  p.lede { color:var(--muted); max-width:680px; font-size:1.03rem; }
+  main { max-width: 900px; margin: 0 auto; padding: 0 24px 64px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:24px; }
+  .card h2 { margin-top:0; font-size:1.15rem; }
+  textarea, input {
+    width:100%; background:#0a0f1a; border:1px solid var(--border); color:var(--text);
+    border-radius:8px; padding:10px 12px; font-size:0.95rem; font-family:inherit;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  label { display:block; font-size:0.8rem; color:var(--muted); margin:12px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  button { background:var(--accent); color:#20150a; border:none; border-radius:8px; padding:12px 20px; font-weight:600; font-size:0.95rem; cursor:pointer; margin-top:18px; }
+  button:hover { filter:brightness(1.1); }
+  #triageResult { margin-top:18px; padding:16px; border-radius:10px; background:#0a0f1a; border:1px solid var(--border); display:none; }
+  #triageResult.show { display:block; }
+  .score { font-size:1.6rem; font-weight:700; color:var(--accent); }
+  .reasons { color:var(--muted); font-size:0.88rem; margin-top:8px; }
+  .reasons li { margin-bottom: 4px; }
+  code { background:#0a0f1a; padding:1px 6px; border-radius:4px; border:1px solid var(--border); font-size:0.85em; }
+  .honesty { font-size:0.82rem; color:var(--muted); border-top:1px solid var(--border); padding-top:16px; margin-top:8px; }
+  .divergence { font-size:0.85rem; color:var(--muted); background:#0a0f1a; border-left:3px solid var(--accent); padding:12px 16px; border-radius:6px; margin-top:12px; }
+  footer { max-width:900px; margin:0 auto; padding:24px; color:var(--muted); font-size:0.8rem; }
+  a { color: var(--accent); }
+</style>
 </head>
 <body>
-    <div id="canvas-container"></div>
-    
-    <div class="glass-panel">
-        <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <div class="status-dot"></div>
-            <span style="color: var(--text-muted); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase;">SOVEREIGN NODE ACTIVE</span>
-        </div>
-        <h1>MAILGUYAI.COM</h1>
-        <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; max-width: 600px;">
-            Premium, enigmatic, hyper-modern. Physical environment protocol: neural_mesh.
-        </p>
-        
-        <div class="metrics">
-            <div class="metric-card">
-                <div class="metric-value">99.9%</div>
-                <div class="metric-label">Neural Coherence</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">0ms</div>
-                <div class="metric-label">API Latency</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">LOCAL</div>
-                <div class="metric-label">Execution Vector</div>
-            </div>
-        </div>
+<header>
+  <span class="tag">Prototype · v0.1</span>
+  <h1>MailguyAI</h1>
+  <p class="lede">Intelligent email management: filtering, prioritizing, and (eventually) responding to
+  communications automatically. Two real pieces exist today, described honestly below — a sovereign
+  outbound email gateway (code-complete) and a working, transparent rule-based triage scorer (this page).</p>
+</header>
+<main>
+  <div class="card">
+    <h2>Try the triage scorer</h2>
+    <p style="color:var(--muted); font-size:0.9rem; margin-top:-8px;">
+      Paste a real subject line and sender, and this runs a transparent, rule-based priority score
+      entirely in your browser — no data leaves this page. This is honestly a rules engine, not a
+      trained model; it demonstrates the triage *logic* the full product would run.
+    </p>
+    <label for="sender">Sender</label>
+    <input type="text" id="sender" placeholder="boss@company.com">
+    <label for="subject">Subject line</label>
+    <input type="text" id="subject" placeholder="Re: contract renewal — need your sign-off today">
+    <label for="body">First line of body (optional)</label>
+    <textarea id="body" placeholder="Can you review and approve by EOD?"></textarea>
+    <button onclick="scoreEmail()">Score priority</button>
+    <div id="triageResult">
+      <div class="score" id="scoreOut"></div>
+      <ul class="reasons" id="reasonsOut"></ul>
     </div>
+  </div>
 
-    <script>
-        // Evolved WebGL Matrix
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050505, 0.002);
-        
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        container.appendChild(renderer.domElement);
-        
-        // Complex geometry generation instead of naked cubes
-        const geometry = new THREE.IcosahedronGeometry(10, 1);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: 0x00ffcc, 
-            wireframe: true,
-            transparent: true,
-            opacity: 0.15
-        });
-        
-        const mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
-        
-        // Particles
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 2000;
-        const posArray = new Float32Array(particlesCount * 3);
-        for(let i=0; i<particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 100;
-        }
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.05,
-            color: 0x00ffcc,
-            transparent: true,
-            opacity: 0.5
-        });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-        
-        camera.position.z = 25;
-        
-        // Interactive Mouse Tracking
-        let mouseX = 0;
-        let mouseY = 0;
-        document.addEventListener('mousemove', (event) => {
-            mouseX = event.clientX / window.innerWidth - 0.5;
-            mouseY = event.clientY / window.innerHeight - 0.5;
-        });
-        
-        function animate() {
-            requestAnimationFrame(animate);
-            mesh.rotation.x += 0.001;
-            mesh.rotation.y += 0.002;
-            
-            particlesMesh.rotation.y = -mouseX * 0.5;
-            particlesMesh.rotation.x = -mouseY * 0.5;
-            
-            renderer.render(scene, camera);
-        }
-        animate();
-        
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
-
-    <!-- MASCOM_INTERLINK -->
-    <div style="position: absolute; bottom: 20px; right: 40px; z-index: 100; font-family: monospace; font-size: 0.7rem; letter-spacing: 0.1em; display: flex; gap: 20px;">
-        <a href="blog.html" style="color: #00ffcc; text-decoration: none; text-shadow: 0 0 5px rgba(0,255,204,0.3); transition: color 0.2s;">INTELLIGENCE CORTEX</a>
-        
-        <a href="http://localhost:8888" style="color: #888; text-decoration: none; transition: color 0.2s;">SOVEREIGN GATEWAY</a>
+  <div class="card">
+    <h2>What's real here, what isn't yet</h2>
+    <p class="honesty">
+      The triage scorer above is real, working, rule-based logic — not a fake demo. Separately, this
+      venture also has a code-complete sovereign outbound email gateway
+      (<code>worker.js</code>, dispatches via Cloudflare's native <code>send_email</code> binding —
+      zero Resend/Postmark dependency), but its live deployment status has not been independently
+      re-verified in this pass, so it is not claimed as "live" here.
+    </p>
+    <div class="divergence">
+      <strong>Known gap, stated plainly:</strong> this venture's own spec describes an inbox client in the
+      Superhuman/Spark/Hey category (reading, filtering, and auto-responding to an existing inbox).
+      What is actually built so far is an outbound sending gateway plus this triage-logic demo — real
+      progress, but not yet the inbox-client product named in the spec. Recorded here instead of
+      papering over the gap.
     </div>
-    
+  </div>
+</main>
+<footer>mailguyai.com</footer>
+<script>
+function scoreEmail() {
+  var sender = document.getElementById('sender').value.toLowerCase();
+  var subject = document.getElementById('subject').value.toLowerCase();
+  var body = document.getElementById('body').value.toLowerCase();
+  var text = subject + ' ' + body;
+  var score = 0;
+  var reasons = [];
+
+  var urgentWords = ['urgent', 'asap', 'today', 'deadline', 'action required', 'immediately', 'eod'];
+  urgentWords.forEach(function(w) {
+    if (text.indexOf(w) !== -1) { score += 15; reasons.push('Contains urgency phrase "' + w + '" (+15)'); }
+  });
+
+  var questionMark = text.indexOf('?') !== -1;
+  if (questionMark) { score += 10; reasons.push('Contains a direct question (+10)'); }
+
+  var replyThread = subject.indexOf('re:') === 0 || subject.indexOf('re:') !== -1;
+  if (replyThread) { score += 10; reasons.push('Part of an existing thread ("Re:") (+10)'); }
+
+  var noReply = sender.indexOf('noreply') !== -1 || sender.indexOf('no-reply') !== -1 || sender.indexOf('notifications@') !== -1;
+  if (noReply) { score -= 30; reasons.push('Automated/no-reply sender (-30)'); }
+
+  var newsletter = text.indexOf('unsubscribe') !== -1 || text.indexOf('newsletter') !== -1;
+  if (newsletter) { score -= 20; reasons.push('Looks like bulk/newsletter content (-20)'); }
+
+  if (!sender) { reasons.push('No sender provided — scoring subject/body only'); }
+
+  score = Math.max(0, Math.min(100, score + 40));
+
+  var band;
+  if (score >= 70) band = 'High priority';
+  else if (score >= 45) band = 'Normal priority';
+  else band = 'Low priority / can wait';
+
+  document.getElementById('scoreOut').textContent = score + '/100 — ' + band;
+  var list = document.getElementById('reasonsOut');
+  list.innerHTML = '';
+  if (reasons.length === 0) {
+    var li = document.createElement('li');
+    li.textContent = 'No strong signals found — scored at baseline.';
+    list.appendChild(li);
+  } else {
+    reasons.forEach(function(r) {
+      var li = document.createElement('li');
+      li.textContent = r;
+      list.appendChild(li);
+    });
+  }
+  document.getElementById('triageResult').classList.add('show');
+}
+</script>
 </body>
 </html>
